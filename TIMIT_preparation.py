@@ -15,12 +15,18 @@
 
 # NOTE: This script expects filenames in lowercase (e.g, train/dr1/fcjf0/si1027.wav" rather than "TRAIN/DR1/FCJF0/SI1027.WAV)
 
-
 import shutil
 import os
 import soundfile as sf
 import numpy as np
 import sys
+
+def lower(data_path):
+   for root, dirs, files in os.walk(data_path):
+      for dir in dirs:
+         os.rename(root + '/' + dir, root + '/' + dir.lower())
+      for file in files:
+         os.rename(root + '/' + file, root + '/' + file.lower())
 
 def ReadList(list_file):
  f=open(list_file,"r")
@@ -55,6 +61,7 @@ copy_folder(in_folder,out_folder)
 for i in range(len(list_sig)): 
  
  # Open the wav file
+ list_sig[i] = list_sig[i].lower()
  wav_file=in_folder+'/'+list_sig[i]
  [signal, fs] = sf.read(wav_file)
  signal=signal.astype(np.float64)
@@ -74,7 +81,6 @@ for i in range(len(list_sig)):
  
  # Save normalized speech
  file_out=out_folder+'/'+list_sig[i]
-
  sf.write(file_out, signal, fs)
  
  print("Done %s" % (file_out))

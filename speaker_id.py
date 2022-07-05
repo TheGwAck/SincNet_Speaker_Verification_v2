@@ -41,18 +41,18 @@ def create_batches_rnd(batch_size,data_folder,wav_lst,N_snt,wlen,lab_dict,fact_a
   # select a random sentence from the list 
   #[fs,signal]=scipy.io.wavfile.read(data_folder+wav_lst[snt_id_arr[i]])
   #signal=signal.astype(float)/32768
-
+  wav_lst[snt_id_arr[i]] = wav_lst[snt_id_arr[i]].lower()
   [signal, fs] = sf.read(data_folder+wav_lst[snt_id_arr[i]])
-
-  # accesing to a random chunk
-  snt_len=signal.shape[0]
-  snt_beg=np.random.randint(snt_len-wlen-1) #randint(0, snt_len-2*wlen-1)
-  snt_end=snt_beg+wlen
 
   channels = len(signal.shape)
   if channels == 2:
     print('WARNING: stereo to mono: '+data_folder+wav_lst[snt_id_arr[i]])
     signal = signal[:,0]
+
+  # accesing to a random chunk
+  snt_len=signal.shape[0]
+  snt_beg=np.random.randint(snt_len-wlen-1) #randint(0, snt_len-2*wlen-1)
+  snt_end=snt_beg+wlen
   
   sig_batch[i,:]=signal[snt_beg:snt_end]*rand_amp_arr[i]
   lab_batch[i]=lab_dict[wav_lst[snt_id_arr[i]]]
@@ -120,6 +120,8 @@ N_eval_epoch=int(options.N_eval_epoch)
 seed=int(options.seed)
 
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 # training list
 wav_lst_tr=ReadList(tr_lst)
 snt_tr=len(wav_lst_tr)
@@ -170,7 +172,7 @@ CNN_net=CNN(CNN_arch)
 CNN_net.cuda()
 
 # Loading label dictionary
-lab_dict=np.load(class_dict_file).item()
+lab_dict=np.load(class_dict_file, allow_pickle=True).item()
 
 
 
@@ -273,7 +275,7 @@ for epoch in range(N_epochs):
        
      #[fs,signal]=scipy.io.wavfile.read(data_folder+wav_lst_te[i])
      #signal=signal.astype(float)/32768
-
+     wav_lst_te[i] = wav_lst_te[i].lower()
      [signal, fs] = sf.read(data_folder+wav_lst_te[i])
 
      signal=torch.from_numpy(signal).float().cuda().contiguous()
